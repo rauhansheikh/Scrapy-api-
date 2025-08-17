@@ -72,6 +72,8 @@ document.getElementById("search-form").addEventListener("submit", async function
                             <a href="${result.link}" target="_blank">${result.title}</a>
                         </h5>
                         <p class="card-text">${result.snippet}</p>
+                        <button class="btn btn-sm btn-outline-secondary mt-2" onclick="rescrape(${result.id})">Re-Scrape</button>
+                        <div id="rescrape-result-${result.id}" class="mt-2 small text-muted"></div>
                     </div>
                 </div>
             `;
@@ -85,6 +87,23 @@ document.getElementById("search-form").addEventListener("submit", async function
         `;
     }
 });
+
+async function rescrape(id) {
+    const resultDiv = document.getElementById(`rescrape-result-${id}`);
+    resultDiv.innerHTML = "Re-scraping... ⏳";
+
+    const response = await fetch(`/rescrape/${id}/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    });
+
+    const data = await response.json();
+    if (data.status === "success") {
+        resultDiv.innerHTML = `<strong>Re-scraped:</strong> ${data.data.content}`;
+    } else {
+        resultDiv.innerHTML = `<span class="text-danger">Error: ${data.message}</span>`;
+    }
+}
 </script>
 
 </body>

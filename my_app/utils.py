@@ -1,5 +1,9 @@
 import requests
 from .models import SearchQuery, SearchResult
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
 
 def perform_search_and_save(query):
     headers = {
@@ -26,3 +30,24 @@ def perform_search_and_save(query):
         )
 
     return search_entry
+
+
+def scrape_page_with_selenium(url):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(url)
+    time.sleep(2) 
+
+    page_title = driver.title
+    body_text = driver.find_element(By.TAG_NAME, "body").text
+
+    driver.quit()
+
+    return {
+        "title": page_title,
+        "content": body_text[:500]  
+    }
